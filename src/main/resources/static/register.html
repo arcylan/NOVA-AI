@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register - Nova AI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin:0;
+            font-family: Arial;
+            background:#0f172a;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            height:100vh;
+            color:white;
+        }
+        .box {
+            background:#1e293b;
+            padding:20px;
+            border-radius:10px;
+            width:90%;
+            max-width:350px;
+        }
+        input {
+            width:100%;
+            padding:10px;
+            margin:10px 0;
+            border:none;
+            border-radius:6px;
+        }
+        button {
+            width:100%;
+            padding:10px;
+            background:#22c55e;
+            border:none;
+            color:white;
+            border-radius:6px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h2>Register</h2>
+    <input id="username" placeholder="Username" required>
+    <input id="email" type="email" placeholder="Email" required />
+    <input id="password" type="password" placeholder="Password" required>
+    <button onclick="register()">Register</button>
+</div>
+
+<script>
+    async function register() {
+    const username = document.getElementById("username").value;
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    if (!username || !email || !password) {
+        alert("All fields required");
+        return;
+    }
+
+    try {
+        const res = await fetch("http://localhost:8080/auth/register", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                username: username,
+                email: email,
+                password: password
+            })
+        });
+
+        const data = await res.text();
+
+        if (res.ok) {
+            alert("Registered successfully! Check your email ");
+        } else {
+            alert(data);
+        }
+
+    } catch (e) {
+        console.error(e);
+        alert("Registration failed");
+    }
+}
+</script>
+
+</body>
+</html>
