@@ -17,10 +17,10 @@ public class Message {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long Id;
+    private Long id;
     private String role;
     @Column(columnDefinition ="TEXT")
-    private String Content;
+    private String content;
     private LocalDateTime createdAt;
     @ManyToOne
     @JoinColumn(name="chat_id")
