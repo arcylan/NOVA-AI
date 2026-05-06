@@ -22,26 +22,36 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
-
+                                    FilterChain filterChain)
+            throws ServletException, IOException {
 
         String authHeader = request.getHeader("Authorization");
 
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            // No token → just continue (for public endpoints)
+            filterChain.doFilter(request, response);
+            return;
+        }
 
-            String token = authHeader.substring(7);
-            try {
-                String username = jwtUtil.extractUsername(token);
+        String token = authHeader.substring(7);
+
+        try {
+            String username = jwtUtil.extractUsername(token);
+
+            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
                 UsernamePasswordAuthenticationToken auth =
                         new UsernamePasswordAuthenticationToken(username, null, new ArrayList<>());
 
                 SecurityContextHolder.getContext().setAuthentication(auth);
-            } catch (Exception e) {
-                System.out.println("INvaild Token" + e.getMessage());
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                return;
             }
+
+        } catch (Exception e) {
+            System.out.println("Invalid Token: " + e.getMessage());
+
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("Invalid Token");
+            return;
         }
 
         filterChain.doFilter(request, response);
