@@ -28,6 +28,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/index.html", "/register.html", "/chat.html").permitAll()
                         .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/chat/**").permitAll()
+                        .requestMatchers("/api/**").permitAll()
                         .requestMatchers("/chat/create").authenticated()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
