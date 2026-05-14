@@ -45,7 +45,7 @@ public class AuthController {
 
         //emailService.SendWelcomeMail(user.getEmail());
 
-        return  ResponseEntity
+        return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body("User Registerd");
 
