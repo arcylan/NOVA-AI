@@ -42,7 +42,9 @@ public class AuthController {
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
-        emailService.SendWelcomeMail(user.getEmail());
+
+        //emailService.SendWelcomeMail(user.getEmail());
+
         return  ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body("User Registerd");
