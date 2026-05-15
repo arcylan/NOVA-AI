@@ -88,100 +88,149 @@
 </div>
 
 <script>
+    const BASE_URL = "https://nova-ai-1dzt.onrender.com";
+
     const token = localStorage.getItem("token");
 
-    if(!token){
-        window.location.href="index.html";
+    if (!token) {
+        window.location.href = "index.html";
     }
 
     let chatId;
 
-   async function initChat() {
-   console.log("INIT CHAT CALLED");
-    try {
-        console.log("Initializing chat...");
+    async function initChat() {
 
-        // 🔥 Step 1: try to get old chat
-        const res = await fetch("https://nova-ai-1dzt.onrender.com/chat/last", {
-            headers: {
-                "Authorization": "Bearer " + token
+        console.log("INIT CHAT CALLED");
+
+        try {
+
+            console.log("Initializing chat...");
+
+            // Try getting old chat
+            const res = await fetch(`${BASE_URL}/chat/last`, {
+                headers: {
+                    "Authorization": "Bearer " + token
+                }
+            });
+
+            // ✅ old chat exists
+            if (res.ok) {
+
+                let lastChatId = await res.text();
+
+                if (
+                    lastChatId &&
+                    lastChatId.trim() !== "" &&
+                    lastChatId.trim() !== "null"
+                ) {
+
+                    chatId = lastChatId;
+
+                    console.log("Using old chat:", chatId);
+
+                    return;
+                }
             }
-        });
 
-        let lastChatId = await res.text();
+            // ❌ no old chat -> create new
+            console.log("Creating new chat...");
 
-       if (lastChatId && lastChatId.trim() !== "null" && lastChatId.trim() !== "") {
-            // ✅ use existing chat
-            chatId = lastChatId;
-            console.log("Using old chat:", chatId);
-        } else {
-            // 🆕 create new only if none exists
-            const createRes = await fetch("https://nova-ai-1dzt.onrender.com/chat/create", {
+            const createRes = await fetch(`${BASE_URL}/chat/create`, {
                 method: "POST",
                 headers: {
                     "Authorization": "Bearer " + token
                 }
             });
 
+            if (!createRes.ok) {
+                throw new Error("Failed to create chat");
+            }
+
             chatId = await createRes.text();
+
             console.log("Created new chat:", chatId);
+
+        } catch (e) {
+
+            console.error(e);
+
+            alert("Failed to initialize chat");
         }
-
-    } catch (e) {
-        console.error(e);
-        alert("Failed to initialize chat");
     }
-}
 
-    function add(text,type){
-        const chat=document.getElementById("chat");
-        const div=document.createElement("div");
-        div.className="msg "+type;
-        div.innerText=text;
+    function add(text, type) {
+
+        const chat = document.getElementById("chat");
+
+        const div = document.createElement("div");
+
+        div.className = "msg " + type;
+
+        div.innerText = text;
+
         chat.appendChild(div);
-        chat.scrollTop=chat.scrollHeight;
+
+        chat.scrollTop = chat.scrollHeight;
+
         return div;
     }
 
-    async function send(){
-        if(!chatId){
+    async function send() {
+
+        if (!chatId) {
+
             alert("Chat not ready yet...");
+
             return;
         }
 
-        const input=document.getElementById("input");
-        const msg=input.value.trim();
-        if(!msg) return;
+        const input = document.getElementById("input");
 
-        add(msg,"user");
-        input.value="";
-        const typing=add("Typing...","ai");
+        const msg = input.value.trim();
 
-        try{
-            const res = await fetch(`https://nova-ai-1dzt.onrender.com/api/${chatId}/${encodeURIComponent(msg)}`, {
-                    headers:{
-                        "Authorization":"Bearer "+token
+        if (!msg) return;
+
+        add(msg, "user");
+
+        input.value = "";
+
+        const typing = add("Typing...", "ai");
+
+        try {
+
+            const res = await fetch(
+                `${BASE_URL}/api/${chatId}/${encodeURIComponent(msg)}`,
+                {
+                    headers: {
+                        "Authorization": "Bearer " + token
                     }
                 }
             );
 
             const data = await res.text();
-            typing.remove();
-            add(data,"ai");
 
-        }catch(e){
             typing.remove();
-            add("Error","ai");
+
+            add(data, "ai");
+
+        } catch (e) {
+
+            typing.remove();
+
+            add("Error", "ai");
         }
     }
 
-    function logout(){
+    function logout() {
+
         localStorage.removeItem("token");
-        window.location.href="index.html";
+
+        window.location.href = "index.html";
     }
 
-    document.getElementById("input").addEventListener("keydown",e=>{
-        if(e.key==="Enter") send();
+    document.getElementById("input").addEventListener("keydown", e => {
+
+        if (e.key === "Enter") send();
     });
 
     initChat();
