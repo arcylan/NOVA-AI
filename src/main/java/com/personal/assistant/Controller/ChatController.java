@@ -27,15 +27,16 @@ public class ChatController {
     private ChatRepository chatRepository;
 
     @PostMapping("/create")
-    public ResponseEntity<Long> createChat(Authentication auth){
-        String name = auth.getName();
-        User userName = userRepository.findByUsername(name);
-        if(userName==null){
-            throw new RuntimeException("user not found");
-        }
+    public ResponseEntity<Long> createChat() {
+
+        User user = userRepository.findByUsername("arcylan");
+
         Chat chat = new Chat();
-        chat.setUser(userName);
+
+        chat.setUser(user);
+
         chatRepository.save(chat);
+
         return ResponseEntity.ok(chat.getId());
     }
 
